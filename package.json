@@ -1,0 +1,16 @@
+{
+  "name": "unam-exchange-scraper",
+  "version": "1.0.0",
+  "description": "web scraper to fetch the available international student exchange programs from the UNAM international website.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "Manuel Rodriguez",
+  "license": "ISC",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.12",
+    "node-fetch": "^3.2.10"
+  }
+}
