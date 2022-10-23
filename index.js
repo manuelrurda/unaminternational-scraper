@@ -1,11 +1,19 @@
-import fetch from "node-fetch";
-import * as cheerio from "cheerio";
+const fetch = require("node-fetch");
+const axios = require("axios");
+const cheerio = require("cheerio");
 
-const options = {
+let request = require("request-promise");
+const cookieJar = request.jar();
+request = request.defaults({ jar: cookieJar });
+
+const MOVILIDAD_URL =
+  "https://www.unaminternacional.unam.mx/es/movilidad/estudiantil";
+
+const optionsBoilerplate = {
   method: "POST",
   headers: {
     Accept: "application/json, text/javascript, */*; q=0.01",
-    "Accept-Language": "en-US,en;q=0.9",
+    "Accept-Language": "en-US,en;q=0.9,es;q=0.8",
     Connection: "keep-alive",
     "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
     Cookie:
@@ -32,12 +40,46 @@ const options = {
   }),
 };
 
-const getAvailablePrograms = async () => {
+const getSessionToken = async () => {
+  const html = await request.get(MOVILIDAD_URL);
+  const cookieString = cookieJar.getCookieString(MOVILIDAD_URL);
+
+  const $ = cheerio.load(html);
+  const csrfToken = $("meta[name='csrf-token']", html).attr("content");
+
+  setOptions(csrfToken, optionsBoilerplate, cookieString);
+};
+
+const setOptions = (token, options, cookieString) => {
+  const newHeaders = {
+    "X-CSRF-TOKEN": `${token}`,
+    Cookie: cookieString,
+  };
+  const newToken = {
+    headers: {
+      ...options.headers,
+      ...newHeaders,
+    },
+    body: new URLSearchParams({
+      consulta: "print_convocatorias",
+      id: "alumnos-internacional",
+      f: "8",
+      _token: `${token}`,
+    }),
+  };
+
+  options = { ...options, ...newToken };
+  // console.log(options);
+  getAvailablePrograms(options);
+};
+
+const getAvailablePrograms = async (options) => {
   try {
     const response = await fetch(
       "https://www.unaminternacional.unam.mx/ajaxdgeci",
       options
     );
+    // console.log(response);
     if (response.ok) {
       const jsonResponse = await response.json();
       parseRawHtml(jsonResponse["mensaje"]);
@@ -54,4 +96,8 @@ const parseRawHtml = (html) => {
   });
 };
 
-getAvailablePrograms();
+const main = () => {
+  getSessionToken();
+};
+
+main();
