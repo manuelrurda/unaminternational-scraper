@@ -4,13 +4,15 @@
   "description": "web scraper to fetch the available international student exchange programs from the UNAM international website.",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "install": "npm run build"
   },
   "author": "Manuel Rodriguez",
   "license": "ISC",
   "dependencies": {
     "cheerio": "^1.0.0-rc.12",
     "node-fetch": "2.0",
+    "nodemailer": "^6.8.0",
     "request-promise": "^4.2.6"
   }
 }
